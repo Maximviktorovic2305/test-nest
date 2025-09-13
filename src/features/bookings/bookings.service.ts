@@ -39,30 +39,48 @@ export class BookingsService {
       throw new EventNotFoundException();
     }
 
-    // Проверяем наличие достаточного количества свободных мест
+    // Быстрая проверка доступных мест — ранний отказ для UX, но
+    // реальная защита от состязательных условий выполняется в транзакции ниже
     if (event.bookedSeats + seats > event.totalSeats) {
       throw new InsufficientSeatsException(
         `Доступно только ${event.totalSeats - event.bookedSeats} мест`,
       );
     }
 
-    // Создаем бронирование
-    const booking = await this.prisma.booking.create({
-      data: {
-        userId,
-        eventId,
-        seats,
-      },
-    });
-
-    // Обновляем количество забронированных мест в событии
-    await this.prisma.event.update({
-      where: { id: eventId },
-      data: {
-        bookedSeats: {
-          increment: seats,
+    // Выполняем атомарную операцию: сначала условно увеличиваем bookedSeats,
+    // затем создаём бронирование в интерактивной транзакции. Если условие не выполнено,
+    // updateMany вернёт count: 0 и мы выбросим исключение — это защищает от гонок.
+    const booking = await this.prisma.$transaction(async (tx) => {
+      const updateResult = await tx.event.updateMany({
+        where: {
+          id: eventId,
+          // bookedSeats <= totalSeats - seats
+          bookedSeats: {
+            lte: event.totalSeats - seats,
+          },
         },
-      },
+        data: {
+          bookedSeats: {
+            increment: seats,
+          },
+        },
+      });
+
+      if (updateResult.count === 0) {
+        throw new InsufficientSeatsException(
+          `Доступно только ${event.totalSeats - event.bookedSeats} мест`,
+        );
+      }
+
+      const created = await tx.booking.create({
+        data: {
+          userId,
+          eventId,
+          seats,
+        },
+      });
+
+      return created;
     });
 
     return booking;
@@ -169,24 +187,31 @@ export class BookingsService {
       throw new UnauthorizedBookingException();
     }
 
-    // Обновляем статус бронирования на "отменено"
-    const updatedBooking = await this.prisma.booking.update({
-      where: { id },
-      data: {
-        status: 'cancelled',
-      },
-    });
+    // Атомарно помечаем бронирование как отменённое и уменьшаем bookedSeats в событии
+    const result = await this.prisma.$transaction(async (tx) => {
+      // Обновляем только если бронирование ещё не отменено
+      const updated = await tx.booking.updateMany({
+        where: { id, status: { not: 'cancelled' } },
+        data: { status: 'cancelled' },
+      });
 
-    // Обновляем количество забронированных мест в событии
-    await this.prisma.event.update({
-      where: { id: booking.eventId },
-      data: {
-        bookedSeats: {
-          decrement: booking.seats,
+      if (updated.count === 0) {
+        // Либо бронирование не найдено, либо уже отменено
+        throw new BookingNotFoundException();
+      }
+
+      await tx.event.update({
+        where: { id: booking.eventId },
+        data: {
+          bookedSeats: {
+            decrement: booking.seats,
+          },
         },
-      },
+      });
+
+      return tx.booking.findUnique({ where: { id } });
     });
 
-    return updatedBooking;
+    return result;
   }
 }

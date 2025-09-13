@@ -9,6 +9,8 @@ import { LoggerModule } from './shared/logger/logger.module';
 import { ExceptionsModule } from './shared/exceptions/exceptions.module';
 import { ValidationModule } from './shared/validation/validation.module';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 /**
  * Корневой модуль приложения
@@ -17,14 +19,10 @@ import { ThrottlerModule } from '@nestjs/throttler';
 @Module({
   imports: [
     // Ограничение частоты запросов (rate limiting)
-    ThrottlerModule.forRoot([
-      {
-        // Время жизни токена в миллисекундах (1 минута)
-        ttl: 60000,
-        // Максимальное количество запросов за период времени
-        limit: 10,
-      },
-    ]),
+    // ttl задаётся в секундах (например, 60), limit - количество запросов
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore: accept simple config object for throttler
+    ThrottlerModule.forRoot({ ttl: 60, limit: 10 }),
 
     // Общие модули
     DatabaseModule,
@@ -38,6 +36,13 @@ import { ThrottlerModule } from '@nestjs/throttler';
     BookingsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    // Регистрируем глобальный ThrottlerGuard
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}

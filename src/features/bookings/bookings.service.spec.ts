@@ -26,6 +26,11 @@ describe('BookingsService', () => {
   type PrismaMock = {
     event: EventDelegate;
     booking: BookingDelegate;
+    // transaction receives a function and returns a promise with the result
+    $transaction: jest.Mock<
+      Promise<any>,
+      [(fn: (tx: any) => any) => Promise<any>]
+    >;
   };
 
   let prisma: PrismaMock;
@@ -41,6 +46,7 @@ describe('BookingsService', () => {
         findUnique: jest.fn<Promise<any>, any[]>(),
         update: jest.fn<Promise<any>, any[]>(),
       },
+      $transaction: jest.fn() as PrismaMock['$transaction'],
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -67,16 +73,53 @@ describe('BookingsService', () => {
     });
 
     const bookingMock = { id: 5, ...createDto, userId };
-    prisma.booking.create.mockResolvedValue(bookingMock);
-    prisma.event.update.mockResolvedValue({});
+    // Mock transaction: updateMany returns count 1 and booking.create returns booking
+    prisma.$transaction.mockImplementation((fn: (tx: any) => any) => {
+      // emulate tx where updateMany returns { count: 1 } and booking.create returns bookingMock
+      const tx = {
+        event: {
+          updateMany: jest.fn().mockResolvedValue({ count: 1 }),
+          update: jest.fn().mockResolvedValue({}),
+        },
+        booking: {
+          create: jest.fn().mockResolvedValue(bookingMock),
+          findUnique: jest.fn().mockResolvedValue(bookingMock),
+          updateMany: jest.fn(),
+        },
+      };
+
+      return Promise.resolve(fn(tx as any));
+    });
 
     const result = await service.create(userId, createDto);
     expect(result).toEqual(bookingMock);
-    expect(prisma.booking.create).toHaveBeenCalled();
-    expect(prisma.event.update).toHaveBeenCalledWith({
-      where: { id: createDto.eventId },
-      data: { bookedSeats: { increment: createDto.seats } },
+    expect(prisma.$transaction).toHaveBeenCalled();
+  });
+
+  it('should throw InsufficientSeatsException when concurrent update fails', async () => {
+    const userId = 1;
+    const createDto = { eventId: 20, seats: 5 };
+
+    prisma.event.findUnique.mockResolvedValue({
+      id: 20,
+      totalSeats: 50,
+      bookedSeats: 48,
     });
+
+    prisma.$transaction.mockImplementation((fn: (tx: any) => any) => {
+      const tx = {
+        event: {
+          updateMany: jest.fn().mockResolvedValue({ count: 0 }),
+        },
+        booking: { create: jest.fn() },
+      };
+
+      return Promise.resolve(fn(tx as any));
+    });
+
+    await expect(service.create(userId, createDto)).rejects.toBeInstanceOf(
+      InsufficientSeatsException,
+    );
   });
 
   it('should throw EventNotFoundException when event missing', async () => {
