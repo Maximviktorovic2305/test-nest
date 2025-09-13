@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
+import request from 'supertest';
+import { Express } from 'express';
 import { AppModule } from './../src/app.module';
 
 /**
@@ -25,8 +26,8 @@ describe('AppController (e2e)', () => {
   /**
    * Тест проверяет, что корневой маршрут возвращает приветственное сообщение
    */
-  it('/ (GET)', () => {
-    return request(app.getHttpServer())
+  it('/ (GET)', async () => {
+    await request(app.getHttpServer() as unknown as Express)
       .get('/')
       .expect(200)
       .expect(

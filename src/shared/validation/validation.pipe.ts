@@ -26,9 +26,9 @@ export class ValidationPipe implements PipeTransform<unknown> {
     }
 
     // Преобразуем простой объект в экземпляр класса
-    const object = plainToInstance(metatype, value as object);
+    const object = plainToInstance(metatype, value as object) as unknown;
     // Выполняем валидацию
-    const errors = await validate(object);
+    const errors = await validate(object as object);
 
     // Если есть ошибки валидации, выбрасываем исключение
     if (errors.length > 0) {
@@ -43,9 +43,15 @@ export class ValidationPipe implements PipeTransform<unknown> {
    * @param metatype Тип для проверки
    * @returns true если тип требует валидации, false если нет
    */
-  private toValidate(metatype: Function): boolean {
+  private toValidate(metatype: new (...args: any[]) => any): boolean {
     // Базовые типы, которые не требуют валидации
-    const types: Function[] = [String, Boolean, Number, Array, Object];
+    const types: Array<new (...args: any[]) => any> = [
+      String,
+      Boolean,
+      Number,
+      Array,
+      Object,
+    ];
     return !types.includes(metatype);
   }
 }

@@ -6,6 +6,24 @@ import { Environment } from '../../types';
 config();
 
 /**
+ * Parses a string value to integer with fallback
+ * @param value The string value to parse
+ * @param fallback The fallback value if parsing fails
+ * @returns The parsed integer or fallback value
+ */
+const parseIntWithFallback = (
+  value: string | undefined,
+  fallback: number,
+): number => {
+  if (value === undefined) {
+    return fallback;
+  }
+
+  const parsed = parseInt(value, 10);
+  return isNaN(parsed) ? fallback : parsed;
+};
+
+/**
  * Конфигурация окружения приложения
  * Содержит все необходимые настройки для работы приложения
  */
@@ -20,7 +38,7 @@ export const environment: Environment = {
   // Хост Redis сервера
   redisHost: process.env.REDIS_HOST || 'localhost',
   // Порт Redis сервера
-  redisPort: parseInt(process.env.REDIS_PORT || '6379', 10),
+  redisPort: parseIntWithFallback(process.env.REDIS_PORT, 6379),
   // Порт приложения
-  port: parseInt(process.env.PORT || '3000', 10),
+  port: parseIntWithFallback(process.env.PORT, 3000),
 };

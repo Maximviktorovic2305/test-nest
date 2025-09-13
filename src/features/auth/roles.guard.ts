@@ -1,6 +1,6 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { AuthenticatedRequest } from '../../types';
+import { AuthenticatedRequest } from '../../types/auth.types';
 
 /**
  * Гвард для проверки ролей пользователя
@@ -28,7 +28,7 @@ export class RolesGuard implements CanActivate {
     }
 
     // Получаем объект запроса и пользователя
-    const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
+    const request: AuthenticatedRequest = context.switchToHttp().getRequest();
     const user = request.user;
     // Если пользователь не аутентифицирован, запрещаем доступ
     if (!user) {

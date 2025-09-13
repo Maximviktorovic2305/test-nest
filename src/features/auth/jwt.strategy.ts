@@ -1,8 +1,8 @@
-import { ExtractJwt, Strategy } from 'passport-jwt';
+import { ExtractJwt, Strategy, StrategyOptions } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
 import { environment } from '../../shared/config/environment';
-import { JwtPayload } from '../../types';
+import { JwtPayload } from '../../types/auth.types';
 
 /**
  * Стратегия JWT аутентификации
@@ -11,14 +11,13 @@ import { JwtPayload } from '../../types';
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor() {
-    super({
-      // Извлекаем JWT токен из заголовка Authorization
+    const options: StrategyOptions = {
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      // Не игнорируем срок действия токена
       ignoreExpiration: false,
-      // Секретный ключ для проверки подписи токена
       secretOrKey: environment.jwtSecret,
-    });
+    };
+
+    super(options);
   }
 
   /**

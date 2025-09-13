@@ -4,8 +4,12 @@ import { PrismaService } from '../../shared/database/prisma.service';
 
 describe('EventsService', () => {
   let service: EventsService;
+  let mockCreate: jest.Mock;
 
   beforeEach(async () => {
+    // Create a mock for the create method
+    mockCreate = jest.fn();
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         EventsService,
@@ -13,7 +17,7 @@ describe('EventsService', () => {
           provide: PrismaService,
           useValue: {
             event: {
-              create: jest.fn(),
+              create: mockCreate,
               findMany: jest.fn(),
               findUnique: jest.fn(),
               update: jest.fn(),
@@ -49,13 +53,13 @@ describe('EventsService', () => {
         updatedAt: new Date(),
       };
 
-      const prismaService = service['prisma'];
-      (prismaService.event.create as jest.Mock).mockResolvedValue(mockEvent);
+      // Use the mock directly without referencing unbound methods
+      mockCreate.mockResolvedValue(mockEvent);
 
       const result = await service.create(createEventDto);
 
       expect(result).toEqual(mockEvent);
-      expect(prismaService.event.create).toHaveBeenCalledWith({
+      expect(mockCreate).toHaveBeenCalledWith({
         data: createEventDto,
       });
     });
