@@ -2,10 +2,7 @@ import { Module } from '@nestjs/common';
 import { AllExceptionsFilter } from './all-exceptions.filter';
 import { LoggerModule } from '../logger/logger.module';
 
-/**
- * Модуль обработки исключений
- * Предоставляет фильтр для обработки всех исключений в приложении
- */
+// Модуль исключений — регистрирует глобальный фильтр для обработки ошибок
 @Module({
   // Импортируем модуль логирования для записи информации об исключениях
   imports: [LoggerModule],

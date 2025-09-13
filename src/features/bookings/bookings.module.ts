@@ -4,10 +4,7 @@ import { BookingsController } from './bookings.controller';
 import { DatabaseModule } from '../../shared/database/database.module';
 import { AuthModule } from '../auth/auth.module';
 
-/**
- * Модуль бронирований
- * Содержит все необходимые компоненты для работы с бронированиями
- */
+// Модуль бронирований — регистрирует контроллер и сервис бронирований
 @Module({
   imports: [
     // Модуль для работы с базой данных

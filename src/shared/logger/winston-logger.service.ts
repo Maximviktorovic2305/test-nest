@@ -2,13 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { createLogger, format, transports, Logger } from 'winston';
 import * as path from 'path';
 
-/**
- * Сервис логирования на основе Winston
- * Предоставляет методы для логирования различных уровней сообщений
- */
+// Сервис логирования (Winston) — методы для разных уровней логов
 @Injectable()
 export class WinstonLoggerService {
-  // Экземпляр логгера Winston
+  // Экземпляр Winston логгера
   private logger: Logger;
 
   constructor() {
@@ -50,43 +47,29 @@ export class WinstonLoggerService {
     }
   }
 
-  /**
-   * Метод для логирования информационных сообщений
-   * @param message Текст сообщения
-   */
+  // Логирование информационных сообщений
+  // message — текст сообщения
   log(message: string) {
     this.logger.info(message);
   }
 
-  /**
-   * Метод для логирования ошибок
-   * @param message Текст ошибки
-   * @param trace Стек вызовов
-   */
+  // Логирование ошибок
+  // message — текст ошибки, trace — стек вызовов
   error(message: string, trace: string) {
     this.logger.error(message, { trace });
   }
 
-  /**
-   * Метод для логирования предупреждений
-   * @param message Текст предупреждения
-   */
+  // Логирование предупреждений
   warn(message: string) {
     this.logger.warn(message);
   }
 
-  /**
-   * Метод для логирования отладочных сообщений
-   * @param message Текст отладочного сообщения
-   */
+  // Логирование отладочных сообщений
   debug(message: string) {
     this.logger.debug(message);
   }
 
-  /**
-   * Метод для логирования подробных сообщений
-   * @param message Текст подробного сообщения
-   */
+  // Логирование подробных сообщений
   verbose(message: string) {
     this.logger.verbose(message);
   }

@@ -1,10 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ValidationPipe } from './validation.pipe';
 
-/**
- * Модуль валидации
- * Предоставляет пайп для валидации входных данных
- */
+// Модуль валидации — предоставляет ValidationPipe для использования в приложении
 @Module({
   // Регистрируем пайп валидации как провайдер
   providers: [ValidationPipe],

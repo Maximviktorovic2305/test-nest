@@ -1,10 +1,7 @@
 import { Module } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
 
-/**
- * Модуль базы данных
- * Предоставляет сервис для работы с базой данных через Prisma
- */
+// Модуль базы данных — регистрирует PrismaService для доступа к БД
 @Module({
   // Регистрируем сервис Prisma как провайдер
   providers: [PrismaService],

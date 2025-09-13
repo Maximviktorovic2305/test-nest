@@ -6,10 +6,7 @@ import { LoginDto } from './dto/login.dto';
 import { JwtPayload } from '../../types';
 import * as bcrypt from 'bcrypt';
 
-/**
- * Сервис аутентификации
- * Обрабатывает регистрацию, вход и валидацию пользователей
- */
+// Сервис аутентификации — регистрация, вход и валидация пользователей
 @Injectable()
 export class AuthService {
   constructor(
@@ -19,11 +16,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  /**
-   * Метод регистрации нового пользователя
-   * @param registerDto Данные для регистрации
-   * @returns Объект с JWT токеном и данными пользователя
-   */
+  // Регистрирует нового пользователя и возвращает access token + данные
   async register(registerDto: RegisterDto) {
     // Проверяем, существует ли пользователь с таким email
     const existingUser = await this.prisma.user.findUnique({
@@ -64,11 +57,7 @@ export class AuthService {
     };
   }
 
-  /**
-   * Метод входа пользователя
-   * @param loginDto Данные для входа
-   * @returns Объект с JWT токеном и данными пользователя
-   */
+  // Выполняет вход пользователя и возвращает access token + данные
   async login(loginDto: LoginDto) {
     // Ищем пользователя по email
     const user = await this.prisma.user.findUnique({
@@ -107,11 +96,7 @@ export class AuthService {
     };
   }
 
-  /**
-   * Метод валидации пользователя по ID
-   * @param userId ID пользователя
-   * @returns Объект пользователя без пароля или null
-   */
+  // Валидирует пользователя по ID (используется стратегией JWT)
   async validateUser(userId: number) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },

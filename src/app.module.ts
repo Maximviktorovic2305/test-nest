@@ -8,15 +8,17 @@ import { DatabaseModule } from './shared/database/database.module';
 import { LoggerModule } from './shared/logger/logger.module';
 import { ExceptionsModule } from './shared/exceptions/exceptions.module';
 import { ValidationModule } from './shared/validation/validation.module';
-// Throttler is intentionally not imported here to avoid typing mismatches in this environment.
-// Per-route throttling can be enabled in controllers once typings are aligned.
+import { ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
-/**
- * Корневой модуль приложения
- * Импортирует все необходимые модули и настраивает приложение
- */
+// Корневой модуль приложения — собирает и настраивает все модули
 @Module({
   imports: [
+    // Ограничение частоты запросов (rate limiting)
+    // ttl задаётся в секундах (например, 60), limit - количество запросов
+    ThrottlerModule.forRoot({ throttlers: [{ limit: 10, ttl: 60 }] }),
+
     // Общие модули
     DatabaseModule,
     LoggerModule,
@@ -31,7 +33,11 @@ import { ValidationModule } from './shared/validation/validation.module';
   controllers: [AppController],
   providers: [
     AppService,
-    // дополнительные провайдеры (guards и т.д.)
+    // Регистрируем глобальный ThrottlerGuard
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
   ],
 })
 export class AppModule {}

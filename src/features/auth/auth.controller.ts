@@ -11,11 +11,11 @@ import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { Public } from './decorators/public.decorator';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
+import { UserSchema } from '../../shared/swagger/user.schema';
 
-/**
- * Контроллер аутентификации
- * Обрабатывает запросы на регистрацию и вход пользователей
- */
+// Контроллер аутентификации — обрабатывает регистрацию и вход пользователей
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -23,26 +23,52 @@ export class AuthController {
     private readonly authService: AuthService,
   ) {}
 
-  /**
-   * Метод регистрации нового пользователя
-   * Доступен без аутентификации благодаря @Public()
-   */
+  // Регистрирует нового пользователя (публичный маршрут)
   @Public()
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
   @UsePipes(new ValidationPipe({ transform: true }))
+  @ApiOperation({ summary: 'Регистрация нового пользователя' })
+  @ApiBody({ type: RegisterDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Пользователь успешно зарегистрирован',
+    schema: UserSchema,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Неверные данные для регистрации',
+  })
   async register(@Body() registerDto: RegisterDto) {
     return this.authService.register(registerDto);
   }
 
-  /**
-   * Метод входа пользователя
-   * Доступен без аутентификации благодаря @Public()
-   */
+  // Вход пользователя (публичный маршрут)
   @Public()
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @UsePipes(new ValidationPipe({ transform: true }))
+  @ApiOperation({ summary: 'Вход пользователя' })
+  @ApiBody({ type: LoginDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Успешный вход в систему',
+    schema: {
+      type: 'object',
+      properties: {
+        access_token: {
+          type: 'string',
+          example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+          description: 'JWT токен для аутентификации',
+        },
+      },
+      required: ['access_token'],
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Неверные учетные данные',
+  })
   async login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto);
   }

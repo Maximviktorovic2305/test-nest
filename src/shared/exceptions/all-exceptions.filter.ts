@@ -8,22 +8,13 @@ import {
 import { Response } from 'express';
 import { WinstonLoggerService } from '../logger/winston-logger.service';
 
-/**
- * Фильтр для обработки всех исключений
- * Перехватывает все необработанные исключения и формирует стандартизированный ответ
- */
+// Фильтр перехвата всех исключений и формирования стандартизированного ответа
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
-  constructor(
-    // Сервис логирования для записи информации об исключениях
-    private readonly logger: WinstonLoggerService,
-  ) {}
+  // Сервис логирования для записи информации об исключениях
+  constructor(private readonly logger: WinstonLoggerService) {}
 
-  /**
-   * Метод обработки исключений
-   * @param exception Произошедшее исключение
-   * @param host Аргументы хоста
-   */
+  // Обработка исключения (exception) и контекста хоста (host)
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();

@@ -4,10 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { environment } from '../../shared/config/environment';
 import { JwtPayload } from '../../types/auth.types';
 
-/**
- * Стратегия JWT аутентификации
- * Используется для проверки JWT токенов и извлечения пользовательских данных
- */
+// Стратегия JWT — проверяет токен и извлекает полезную нагрузку
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor() {
@@ -20,12 +17,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     super(options);
   }
 
-  /**
-   * Метод валидации JWT токена
-   * Вызывается после успешной проверки подписи токена
-   * @param payload Данные из JWT токена
-   * @returns Объект с пользовательскими данными
-   */
+  // Валидирует payload JWT и возвращает объект пользователя
   async validate(payload: JwtPayload) {
     // Добавляем небольшую задержку, чтобы сделать метод асинхронным
     await Promise.resolve();

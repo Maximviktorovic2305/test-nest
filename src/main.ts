@@ -9,10 +9,7 @@ import { PrismaService } from './shared/database/prisma.service';
 import * as fs from 'fs';
 import * as path from 'path';
 
-/**
- * Основная функция запуска приложения
- * Настраивает и запускает NestJS приложение
- */
+// Точка входа: настраивает и запускает NestJS приложение
 async function bootstrap() {
   // Создаем директорию для логов, если она не существует
   const logsDir = path.join(process.cwd(), 'logs');
@@ -47,6 +44,9 @@ async function bootstrap() {
     .setDescription('API для бронирования событий и управления бронированиями')
     .setVersion('1.0')
     .addBearerAuth()
+    .addTag('auth', 'Аутентификация и авторизация')
+    .addTag('events', 'Управление событиями')
+    .addTag('bookings', 'Управление бронированиями')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);

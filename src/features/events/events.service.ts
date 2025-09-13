@@ -4,10 +4,7 @@ import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { EventNotFoundException } from '../../shared/exceptions/business.exception';
 
-/**
- * Сервис событий
- * Содержит бизнес-логику для работы с событиями
- */
+// Сервис событий — содержит бизнес-логику для работы с событиями
 @Injectable()
 export class EventsService {
   constructor(
@@ -15,21 +12,14 @@ export class EventsService {
     private readonly prisma: PrismaService,
   ) {}
 
-  /**
-   * Метод создания нового события
-   * @param createEventDto Данные для создания события
-   * @returns Созданное событие
-   */
+  // Создает новое событие
   async create(createEventDto: CreateEventDto) {
     return this.prisma.event.create({
       data: createEventDto,
     });
   }
 
-  /**
-   * Метод получения всех событий
-   * @returns Массив всех событий, отсортированных по дате
-   */
+  // Получает все события, отсортированные по дате
   async findAll() {
     return this.prisma.event.findMany({
       orderBy: {
@@ -38,12 +28,7 @@ export class EventsService {
     });
   }
 
-  /**
-   * Метод получения события по ID
-   * @param id ID события
-   * @returns Найденное событие
-   * @throws EventNotFoundException если событие не найдено
-   */
+  // Получает событие по ID
   async findOne(id: number) {
     const event = await this.prisma.event.findUnique({
       where: { id },
@@ -56,13 +41,7 @@ export class EventsService {
     return event;
   }
 
-  /**
-   * Метод обновления события
-   * @param id ID события для обновления
-   * @param updateEventDto Данные для обновления события
-   * @returns Обновленное событие
-   * @throws EventNotFoundException если событие не найдено
-   */
+  // Обновляет событие по ID
   async update(id: number, updateEventDto: UpdateEventDto) {
     try {
       return await this.prisma.event.update({
@@ -78,12 +57,7 @@ export class EventsService {
     }
   }
 
-  /**
-   * Метод удаления события
-   * @param id ID события для удаления
-   * @returns Удаленное событие
-   * @throws EventNotFoundException если событие не найдено
-   */
+  // Удаляет событие по ID
   async remove(id: number) {
     try {
       return await this.prisma.event.delete({

@@ -2,19 +2,12 @@ import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import type { AuthenticatedRequest } from '../../../types/auth.types';
 
-/**
- * Гвард для проверки ролей пользователя
- * Проверяет, имеет ли пользователь необходимые роли для доступа к маршруту
- */
+// Гвард для проверки ролей пользователя — проверяет права доступа по ролям
 @Injectable()
 export class RolesGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
-  /**
-   * Метод проверки доступа на основе ролей
-   * @param context Контекст выполнения
-   * @returns true если доступ разрешен, false если запрещен
-   */
+  // Проверяет, имеет ли пользователь одну из требуемых ролей
   canActivate(context: ExecutionContext): boolean {
     // Получаем необходимые роли из метаданных
     const requiredRoles = this.reflector.getAllAndOverride<string[]>('roles', [

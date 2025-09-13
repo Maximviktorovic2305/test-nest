@@ -6,10 +6,7 @@ import { JwtStrategy } from './jwt.strategy';
 import { DatabaseModule } from '../../shared/database/database.module';
 import { environment } from '../../shared/config/environment';
 
-/**
- * Модуль аутентификации
- * Содержит все необходимые компоненты для работы с аутентификацией и авторизацией
- */
+// Модуль аутентификации — JWT + сервис аутентификации и стратегия
 @Module({
   imports: [
     // Модуль для работы с базой данных

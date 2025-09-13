@@ -4,10 +4,7 @@ import { EventsController } from './events.controller';
 import { DatabaseModule } from '../../shared/database/database.module';
 import { AuthModule } from '../auth/auth.module';
 
-/**
- * Модуль событий
- * Содержит все необходимые компоненты для работы с событиями
- */
+// Модуль событий — регистрирует контроллер и сервис событий
 @Module({
   imports: [
     // Модуль для работы с базой данных

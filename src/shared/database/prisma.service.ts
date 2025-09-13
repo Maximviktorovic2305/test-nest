@@ -1,25 +1,16 @@
 import { Injectable, OnModuleInit, INestApplication } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 
-/**
- * Сервис для работы с базой данных через Prisma
- * Расширяет PrismaClient и реализует жизненный цикл NestJS
- */
+// Сервис работы с БД (Prisma) — расширяет PrismaClient и управляет lifecycle
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {
-  /**
-   * Метод инициализации модуля
-   * Подключается к базе данных при запуске приложения
-   */
+  // Инициализация модуля: подключение к базе данных
   async onModuleInit() {
     await this.$connect();
   }
 
-  /**
-   * Метод включения хуков завершения работы
-   * Закрывает соединение с базой данных при завершении приложения
-   * @param app Экземпляр NestJS приложения
-   */
+  // Включает hook для корректного завершения приложения (закрывает соединение)
+  // app — экземпляр Nest приложения
   enableShutdownHooks(app: INestApplication) {
     process.on('beforeExit', () => {
       void app.close();

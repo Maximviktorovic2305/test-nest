@@ -5,12 +5,7 @@ import { Environment } from '../../types';
 // Загружаем переменные окружения из .env файла
 config();
 
-/**
- * Parses a string value to integer with fallback
- * @param value The string value to parse
- * @param fallback The fallback value if parsing fails
- * @returns The parsed integer or fallback value
- */
+// Преобразует строку в число с запасным значением
 const parseIntWithFallback = (
   value: string | undefined,
   fallback: number,
@@ -23,14 +18,10 @@ const parseIntWithFallback = (
   return isNaN(parsed) ? fallback : parsed;
 };
 
-/**
- * Конфигурация окружения приложения
- * Содержит все необходимые настройки для работы приложения
- */
+// Конфигурация окружения приложения
 export const environment: Environment = {
   // URL подключения к базе данных
-  databaseUrl:
-    process.env.DATABASE_URL || 'mysql://root:password@localhost:3306/bron_db',
+  databaseUrl: 'file:./dev.db',
   // Секретный ключ для JWT токенов
   jwtSecret: process.env.JWT_SECRET || 'secret-key',
   // Время жизни JWT токена

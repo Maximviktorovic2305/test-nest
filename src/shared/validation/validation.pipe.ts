@@ -7,18 +7,11 @@ import {
 import { validate } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
 
-/**
- * Пайп валидации данных
- * Использует class-validator и class-transformer для проверки входных данных
- */
+// Пайп валидации данных (использует class-validator и class-transformer)
 @Injectable()
 export class ValidationPipe implements PipeTransform<unknown> {
-  /**
-   * Метод трансформации и валидации данных
-   * @param value Входное значение для валидации
-   * @param metadata Метаданные аргумента
-   * @returns Проверенное значение или выбрасывает исключение
-   */
+  // Трансформация и валидация входных данных
+  // value — входное значение, metadata — метаданные аргумента
   async transform(value: unknown, { metatype }: ArgumentMetadata) {
     // Если нет метатипа или тип не требует валидации, возвращаем значение как есть
     if (!metatype || !this.toValidate(metatype)) {
@@ -38,11 +31,7 @@ export class ValidationPipe implements PipeTransform<unknown> {
     return value;
   }
 
-  /**
-   * Метод проверки необходимости валидации типа
-   * @param metatype Тип для проверки
-   * @returns true если тип требует валидации, false если нет
-   */
+  // Проверяет, нужно ли валидировать данный тип
   private toValidate(metatype: new (...args: any[]) => any): boolean {
     // Базовые типы, которые не требуют валидации
     const types: Array<new (...args: any[]) => any> = [

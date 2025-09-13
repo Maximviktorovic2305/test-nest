@@ -1,10 +1,7 @@
 import { Module } from '@nestjs/common';
 import { WinstonLoggerService } from './winston-logger.service';
 
-/**
- * Модуль логирования
- * Предоставляет сервис для логирования через Winston
- */
+// Модуль логирования — предоставляет Winston-сервис
 @Module({
   // Регистрируем сервис логирования как провайдер
   providers: [WinstonLoggerService],
