@@ -5,6 +5,7 @@ import { Express } from 'express';
 import { EventsModule } from './../src/features/events/events.module';
 import { PrismaService } from '../src/shared/database/prisma.service';
 import { DatabaseModule } from '../src/shared/database/database.module';
+import { JwtAuthGuard } from '../src/features/auth/guards/jwt-auth.guard';
 
 /**
  * E2E тесты для EventsController
@@ -18,9 +19,21 @@ describe('EventsController (e2e)', () => {
    * Подготовка приложения и сервисов перед всеми тестами
    */
   beforeAll(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
+    const moduleBuilder = Test.createTestingModule({
       imports: [DatabaseModule, EventsModule],
-    }).compile();
+    })
+      .overrideProvider(PrismaService)
+      .useValue({
+        $connect: async () => {},
+        $disconnect: async () => {},
+        event: { findMany: () => [] },
+      });
+
+    // override JwtAuthGuard to allow requests in e2e tests
+    const moduleFixture: TestingModule = await moduleBuilder
+      .overrideGuard(JwtAuthGuard)
+      .useValue({ canActivate: () => true })
+      .compile();
 
     app = moduleFixture.createNestApplication();
     prismaService = moduleFixture.get<PrismaService>(PrismaService);

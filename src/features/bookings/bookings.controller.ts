@@ -13,7 +13,9 @@ import {
 } from '@nestjs/common';
 import { BookingsService } from './bookings.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { Throttle } from '@nestjs/throttler';
+import type { AuthenticatedRequest } from '../../types/auth.types';
 
 /**
  * Контроллер бронирований
@@ -34,11 +36,14 @@ export class BookingsController {
    * @param createBookingDto Данные для создания бронирования
    */
   @Post()
+  @Throttle(5) // 5 requests per default ttl
   @UsePipes(new ValidationPipe({ transform: true }))
   create(
-    @Request() req: { user: { userId: string; role: string } },
+    @Request() req: AuthenticatedRequest,
     @Body() createBookingDto: CreateBookingDto,
   ) {
+    // ensure user is present
+    if (!req.user) throw new Error('Unauthorized');
     return this.bookingsService.create(
       Number(req.user.userId),
       createBookingDto,
@@ -50,7 +55,8 @@ export class BookingsController {
    * @param req Объект запроса с данными пользователя
    */
   @Get()
-  findAll(@Request() req: { user: { userId: string; role: string } }) {
+  findAll(@Request() req: AuthenticatedRequest) {
+    if (!req.user) throw new Error('Unauthorized');
     return this.bookingsService.findAll(Number(req.user.userId), req.user.role);
   }
 
@@ -61,9 +67,10 @@ export class BookingsController {
    */
   @Get(':id')
   findOne(
-    @Request() req: { user: { userId: string; role: string } },
+    @Request() req: AuthenticatedRequest,
     @Param('id', ParseIntPipe) id: number,
   ) {
+    if (!req.user) throw new Error('Unauthorized');
     return this.bookingsService.findOne(
       Number(req.user.userId),
       req.user.role,
@@ -78,9 +85,10 @@ export class BookingsController {
    */
   @Delete(':id')
   cancel(
-    @Request() req: { user: { userId: string; role: string } },
+    @Request() req: AuthenticatedRequest,
     @Param('id', ParseIntPipe) id: number,
   ) {
+    if (!req.user) throw new Error('Unauthorized');
     return this.bookingsService.cancel(
       Number(req.user.userId),
       req.user.role,
