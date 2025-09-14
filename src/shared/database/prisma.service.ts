@@ -10,7 +10,6 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
   }
 
   // Включает hook для корректного завершения приложения (закрывает соединение)
-  // app — экземпляр Nest приложения
   enableShutdownHooks(app: INestApplication) {
     process.on('beforeExit', () => {
       void app.close();

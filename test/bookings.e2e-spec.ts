@@ -4,12 +4,8 @@ import request from 'supertest';
 import { BookingsModule } from './../src/features/bookings/bookings.module';
 import { PrismaService } from '../src/shared/database/prisma.service';
 import { JwtAuthGuard } from '../src/features/auth/guards/jwt-auth.guard';
-// test-only file: intentionally not importing AuthenticatedRequest to avoid circular typing
 
-/**
- * E2E тесты для BookingsController
- * Запускаются с sqlite in-memory для проверки транзакционной логики через Prisma
- */
+// Запускаются с sqlite in-memory для проверки транзакционной логики через Prisma
 describe('BookingsController (e2e)', () => {
   let app: INestApplication;
   let prisma: PrismaService;

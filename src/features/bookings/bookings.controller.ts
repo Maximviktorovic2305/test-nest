@@ -26,24 +26,17 @@ import {
 } from '@nestjs/swagger';
 import { BookingSchema } from '../../shared/swagger/booking.schema';
 
-/**
- * Контроллер бронирований
- * Обрабатывает HTTP запросы для работы с бронированиями
- */
 @ApiTags('bookings')
 @ApiBearerAuth()
 @Controller('bookings')
 // Применяем гвард аутентификации ко всем маршрутам
 @UseGuards(JwtAuthGuard)
 export class BookingsController {
-  constructor(
-    // Сервис для работы с бронированиями
-    private readonly bookingsService: BookingsService,
-  ) {}
+  constructor(private readonly bookingsService: BookingsService) {}
 
   // Создает новое бронирование для авторизованного пользователя
   @Post()
-  @Throttle({ default: { limit: 5, ttl: 60 } }) // 5 requests per 60s for default throttler
+  @Throttle({ default: { limit: 5, ttl: 60 } }) // 5 запросов на 60 сек
   @UsePipes(new ValidationPipe({ transform: true }))
   @ApiOperation({ summary: 'Создать новое бронирование' })
   @ApiBody({ type: CreateBookingDto })
@@ -72,7 +65,6 @@ export class BookingsController {
     @Request() req: AuthenticatedRequest,
     @Body() createBookingDto: CreateBookingDto,
   ) {
-    // ensure user is present
     if (!req.user) throw new Error('Unauthorized');
     return this.bookingsService.create(
       Number(req.user.userId),

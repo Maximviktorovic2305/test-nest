@@ -12,18 +12,22 @@ datasource db {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
-  email     String    @unique
-  password  String
-  name      String?
-  role      String    @default("user")
-  bookings  Booking[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  email    String    @unique
+  password String
+  name     String?
+  role     String    @default("user")
+  bookings Booking[]
 }
 
 model Event {
-  id          Int       @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   title       String
   description String?
   date        DateTime
@@ -31,20 +35,19 @@ model Event {
   totalSeats  Int
   bookedSeats Int       @default(0)
   bookings    Booking[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
 }
 
 model Booking {
   id        Int      @id @default(autoincrement())
-  userId    Int
-  eventId   Int
-  user      User     @relation(fields: [userId], references: [id])
-  event     Event    @relation(fields: [eventId], references: [id])
-  seats     Int
-  status    String   @default("confirmed") // confirmed, cancelled
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  userId  Int
+  eventId Int
+  user    User   @relation(fields: [userId], references: [id])
+  event   Event  @relation(fields: [eventId], references: [id])
+  seats   Int
+  status  String @default("confirmed")
 
   @@unique([userId, eventId])
 }

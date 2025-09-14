@@ -77,19 +77,9 @@
 - `GET /health` - Проверка состояния
 - `GET /api` - Документация Swagger
 
-## Документация
-
-- [Сводка проекта](PROJECT_SUMMARY.md)
-- [Сводка реализации](IMPLEMENTATION_SUMMARY.md)
-- [Схема базы данных](DATABASE_SCHEMA.md)
-
 ## Тестирование
 
 - Модульные тесты: `npm run test`
 - Режим наблюдения: `npm run test:watch`
 - Покрытие: `npm run test:cov`
 - E2E тесты: `npm run test:e2e`
-
-## Лицензия
-
-MIT

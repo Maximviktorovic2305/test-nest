@@ -27,7 +27,6 @@ import {
 } from '@nestjs/swagger';
 import { EventSchema } from '../../shared/swagger/event.schema';
 
-// Контроллер событий — обрабатывает HTTP-запросы для сущности событий
 @ApiTags('events')
 @ApiBearerAuth()
 @Controller('events')
