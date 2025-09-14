@@ -7,11 +7,15 @@ import {
   EventNotFoundException,
   UnauthorizedBookingException,
 } from '../../shared/exceptions/business.exception';
+import { NotificationProcessor } from '../../shared/queue/notification.processor';
 
 @Injectable()
 export class BookingsService {
   // Сервис Prisma для доступа к БД
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificationProcessor: NotificationProcessor,
+  ) {}
 
   // Создает бронирование для пользователя
   async create(userId: number, createBookingDto: CreateBookingDto) {
@@ -64,6 +68,20 @@ export class BookingsService {
 
       return created;
     });
+
+    // Отправляем уведомление о создании бронирования
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (user) {
+      await this.notificationProcessor.queueNotification({
+        userId,
+        message: `Ваше бронирование на событие "${event.title}" успешно создано на ${seats} мест(а).`,
+        type: 'email',
+        recipient: user.email,
+      });
+    }
 
     return booking;
   }
@@ -160,6 +178,26 @@ export class BookingsService {
 
       return tx.booking.findUnique({ where: { id } });
     });
+
+    // Отправляем уведомление об отмене бронирования
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (user) {
+      const event = await this.prisma.event.findUnique({
+        where: { id: booking.eventId },
+      });
+
+      if (event) {
+        await this.notificationProcessor.queueNotification({
+          userId,
+          message: `Ваше бронирование на событие "${event.title}" было отменено.`,
+          type: 'email',
+          recipient: user.email,
+        });
+      }
+    }
 
     return result;
   }

@@ -6,13 +6,21 @@ import {
   ValidationPipe,
   HttpCode,
   HttpStatus,
+  Req,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { Public } from './decorators/public.decorator';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { UserSchema } from '../../shared/swagger/user.schema';
+import type { Request } from 'express';
 
 // Контроллер аутентификации — обрабатывает регистрацию и вход пользователей
 @ApiTags('auth')
@@ -71,5 +79,26 @@ export class AuthController {
   })
   async login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto);
+  }
+
+  // Выход пользователя (защищенный маршрут)
+  @ApiBearerAuth()
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Выход пользователя' })
+  @ApiResponse({
+    status: 200,
+    description: 'Успешный выход из системы',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Неавторизованный доступ',
+  })
+  async logout(@Req() req: Request) {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (token) {
+      await this.authService.logout(token);
+    }
+    return { message: 'Успешный выход' };
   }
 }

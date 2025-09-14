@@ -3,12 +3,19 @@ import { AuthService } from './auth.service';
 import { PrismaService } from '../../shared/database/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { TokenBlacklistService } from '../../shared/redis/token-blacklist.service';
 
 // Мокаем bcrypt перед импортом AuthService
 jest.mock('bcrypt', () => ({
   hash: jest.fn().mockResolvedValue('hashedPassword'),
   compare: jest.fn().mockResolvedValue(true),
 }));
+
+// Мокаем TokenBlacklistService
+const mockTokenBlacklistService = {
+  blacklistToken: jest.fn(),
+  isTokenBlacklisted: jest.fn(),
+};
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -41,6 +48,7 @@ describe('AuthService', () => {
         AuthService,
         { provide: PrismaService, useValue: prisma },
         { provide: JwtService, useValue: jwtService },
+        { provide: TokenBlacklistService, useValue: mockTokenBlacklistService },
       ],
     }).compile();
 

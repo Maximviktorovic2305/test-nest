@@ -1,6 +1,16 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventsService } from './events.service';
 import { PrismaService } from '../../shared/database/prisma.service';
+import { CacheService } from '../../shared/redis/cache.service';
+
+// Мокаем CacheService
+const mockCacheService = {
+  set: jest.fn(),
+  get: jest.fn(),
+  delete: jest.fn(),
+  exists: jest.fn(),
+  flush: jest.fn(),
+};
 
 describe('EventsService', () => {
   let service: EventsService;
@@ -25,6 +35,7 @@ describe('EventsService', () => {
             },
           },
         },
+        { provide: CacheService, useValue: mockCacheService },
       ],
     }).compile();
 

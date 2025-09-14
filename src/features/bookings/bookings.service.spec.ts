@@ -7,6 +7,12 @@ import {
   BookingNotFoundException,
   UnauthorizedBookingException,
 } from '../../shared/exceptions/business.exception';
+import { NotificationProcessor } from '../../shared/queue/notification.processor';
+
+// Мокаем NotificationProcessor
+const mockNotificationProcessor = {
+  queueNotification: jest.fn(),
+};
 
 describe('BookingsService', () => {
   let service: BookingsService;
@@ -26,6 +32,9 @@ describe('BookingsService', () => {
   type PrismaMock = {
     event: EventDelegate;
     booking: BookingDelegate;
+    user: {
+      findUnique: AsyncMock<any>;
+    };
     // transaction receives a function and returns a promise with the result
     $transaction: jest.Mock<
       Promise<any>,
@@ -46,6 +55,9 @@ describe('BookingsService', () => {
         findUnique: jest.fn<Promise<any>, any[]>(),
         update: jest.fn<Promise<any>, any[]>(),
       },
+      user: {
+        findUnique: jest.fn<Promise<any>, any[]>(),
+      },
       $transaction: jest.fn() as PrismaMock['$transaction'],
     };
 
@@ -56,6 +68,7 @@ describe('BookingsService', () => {
           provide: PrismaService,
           useValue: prisma,
         },
+        { provide: NotificationProcessor, useValue: mockNotificationProcessor },
       ],
     }).compile();
 

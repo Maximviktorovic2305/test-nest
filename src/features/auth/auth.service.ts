@@ -5,6 +5,7 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { JwtPayload } from '../../types';
 import * as bcrypt from 'bcrypt';
+import { TokenBlacklistService } from '../../shared/redis/token-blacklist.service';
 
 // Сервис аутентификации — регистрация, вход и валидация пользователей
 @Injectable()
@@ -14,6 +15,8 @@ export class AuthService {
     private readonly prisma: PrismaService,
     // Сервис для работы с JWT токенами
     private readonly jwtService: JwtService,
+    // Сервис для работы с черным списком токенов
+    private readonly tokenBlacklistService: TokenBlacklistService,
   ) {}
 
   // Регистрирует нового пользователя и возвращает access token + данные
@@ -96,6 +99,13 @@ export class AuthService {
     };
   }
 
+  // Выполняет выход пользователя и добавляет токен в черный список
+  async logout(token: string): Promise<void> {
+    // Получаем время жизни токена из конфигурации
+    const ttlSeconds = 3600; // 1 hour default
+    await this.tokenBlacklistService.blacklistToken(token, ttlSeconds);
+  }
+
   // Валидирует пользователя по ID (используется стратегией JWT)
   async validateUser(userId: number) {
     const user = await this.prisma.user.findUnique({
@@ -109,5 +119,10 @@ export class AuthService {
       return result;
     }
     return null;
+  }
+
+  // Проверяет, находится ли токен в черном списке
+  async isTokenBlacklisted(token: string): Promise<boolean> {
+    return await this.tokenBlacklistService.isTokenBlacklisted(token);
   }
 }

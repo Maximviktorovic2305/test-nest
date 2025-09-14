@@ -5,12 +5,15 @@ import { AuthController } from './auth.controller';
 import { JwtStrategy } from './jwt.strategy';
 import { DatabaseModule } from '../../shared/database/database.module';
 import { environment } from '../../shared/config/environment';
+import { RedisModule } from '../../shared/redis/redis.module';
 
 // Модуль аутентификации — JWT + сервис аутентификации и стратегия
 @Module({
   imports: [
     // Модуль для работы с базой данных
     DatabaseModule,
+    // Модуль Redis для работы с черным списком токенов
+    RedisModule,
     // Модуль JWT для работы с токенами
     JwtModule.register({
       // Секретный ключ для подписи токенов

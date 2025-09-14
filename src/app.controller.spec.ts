@@ -21,7 +21,7 @@ describe('AppController', () => {
     // Тест проверяет, что корневой маршрут возвращает приветственное сообщение
     it('should return welcome message', () => {
       expect(appController.getHello()).toBe(
-        'Welcome to the Event Booking API! Visit /api for documentation.',
+        'Добро пожаловать в API бронирования событий! Перейдите по адресу /api для документации.',
       );
     });
   });

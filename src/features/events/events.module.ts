@@ -3,6 +3,7 @@ import { EventsService } from './events.service';
 import { EventsController } from './events.controller';
 import { DatabaseModule } from '../../shared/database/database.module';
 import { AuthModule } from '../auth/auth.module';
+import { RedisModule } from '../../shared/redis/redis.module';
 
 // Модуль событий — регистрирует контроллер и сервис событий
 @Module({
@@ -11,6 +12,8 @@ import { AuthModule } from '../auth/auth.module';
     DatabaseModule,
     // Модуль аутентификации для защиты маршрутов
     AuthModule,
+    // Модуль Redis для кэширования
+    RedisModule,
   ],
   controllers: [EventsController],
   providers: [EventsService],
