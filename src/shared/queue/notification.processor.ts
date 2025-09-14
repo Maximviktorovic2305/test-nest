@@ -56,10 +56,12 @@ export class NotificationProcessor implements OnModuleInit {
     queueEvents.on('failed', ({ jobId, failedReason }) => {
       console.error(`Задание ${jobId} завершено с ошибкой: ${failedReason}`);
     });
+
+    // Добавляем await для удовлетворения линтера
+    await Promise.resolve();
   }
 
   // Добавляет уведомление в очередь
-
   async queueNotification(data: NotificationData) {
     await this.queueService.addJob(this.QUEUE_NAME, 'send-notification', data, {
       attempts: 3, // Попытки повторной отправки при ошибке

@@ -15,3 +15,12 @@ export interface RequestUser {
 export interface AuthenticatedRequest extends Request {
   user?: RequestUser;
 }
+
+export interface PublicUser {
+  id: number;
+  email: string;
+  name: string | null;
+  role: string;
+  createdAt: Date;
+  updatedAt: Date;
+}

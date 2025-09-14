@@ -90,7 +90,7 @@ export class BookingsService {
   async findAll(userId: number, userRole: string) {
     const where = userRole === 'admin' ? {} : { userId };
 
-    return this.prisma.booking.findMany({
+    const bookings = await this.prisma.booking.findMany({
       where,
       include: {
         user: {
@@ -113,6 +113,8 @@ export class BookingsService {
         createdAt: 'desc',
       },
     });
+
+    return bookings;
   }
 
   // Метод получения бронирования по ID

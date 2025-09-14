@@ -1,5 +1,5 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { Queue, Worker, QueueEvents, Job } from 'bullmq';
+import { Queue, Worker, QueueEvents, Job, JobsOptions } from 'bullmq';
 import { environment } from '../config/environment';
 
 @Injectable()
@@ -15,15 +15,15 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
 
   async onModuleDestroy() {
     // Закрываем все очереди, воркеры и события при завершении работы приложения
-    for (const [name, queue] of this.queues) {
+    for (const [, queue] of this.queues) {
       await queue.close();
     }
 
-    for (const [name, worker] of this.workers) {
+    for (const [, worker] of this.workers) {
       await worker.close();
     }
 
-    for (const [name, queueEvents] of this.queueEvents) {
+    for (const [, queueEvents] of this.queueEvents) {
       await queueEvents.close();
     }
   }
@@ -78,7 +78,7 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
     queueName: string,
     jobName: string,
     data: any,
-    options?: any,
+    options?: JobsOptions,
   ): Promise<Job> {
     const queue = this.createQueue(queueName);
     return await queue.add(jobName, data, options);

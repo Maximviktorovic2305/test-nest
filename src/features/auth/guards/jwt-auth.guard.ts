@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from '../auth.service';
+import { Request } from 'express';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
@@ -18,8 +19,8 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 
     if (result) {
       // Получаем токен из заголовка Authorization
-      const request = context.switchToHttp().getRequest();
-      const token = request.headers.authorization?.replace('Bearer ', '');
+      const request: Request = context.switchToHttp().getRequest();
+      const token = request.headers?.authorization?.replace('Bearer ', '');
 
       if (token) {
         // Проверяем, находится ли токен в черном списке

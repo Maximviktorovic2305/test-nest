@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../../shared/database/prisma.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
-import { JwtPayload } from '../../types';
+import { JwtPayload, PublicUser } from '../../types';
 import * as bcrypt from 'bcrypt';
 import { TokenBlacklistService } from '../../shared/redis/token-blacklist.service';
 
@@ -107,7 +107,7 @@ export class AuthService {
   }
 
   // Валидирует пользователя по ID (используется стратегией JWT)
-  async validateUser(userId: number) {
+  async validateUser(userId: number): Promise<PublicUser | null> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
     });
@@ -115,7 +115,8 @@ export class AuthService {
     if (user) {
       // Убираем пароль из возвращаемого объекта
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password: _, ...result } = user;
+      const { password, ...result } = user;
+
       return result;
     }
     return null;
